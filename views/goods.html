@@ -30,32 +30,7 @@
                         <i class="layui-icon">&#xe608;</i> 添加
                     </a>
                 </h2>
-                <table class="layui-table">
-                    <colgroup>
-                        <col width="80">
-                        <col width="120">
-                        <col width="80">
-                        <col>
-                        <col width="90">
-                        <col width="90">
-                        <col width="170">
-                        <col width="130">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>商品ID</th>
-                            <th>商品名称</th>
-                            <th>价格</th>
-                            <th>商品描述</th>
-                            <th>所属分类</th>
-                            <th>状态</th>
-                            <th>添加时间</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <table class="layui-hide" id="test" lay-filter="test"></table>
             </div>
         </div>
 
@@ -63,11 +38,109 @@
         {{include "./common/footer.html"}}
     </div>
 
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
+    </script>
+
     <script>
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
-        layui.use(['element', 'layer'], function() {
+        layui.use(['element', 'layer', 'table'], function() {
+            let table = layui.table;
             // 初始化商品
-            initGoods();
+            // initGoods();
+
+            table.render({
+                elem: '#test',
+                url: '/getGoods',
+                toolbar: '#toolbarDemo', //开启头部工具栏，并为其绑定左侧模板
+                title: '商品数据表',
+                cols: [
+                    [{
+                        field: 'goods_id',
+                        title: '商品ID',
+                        width: 80,
+                        fixed: 'left',
+                        unresize: true,
+                        sort: true
+                    }, {
+                        field: 'goods_name',
+                        title: '商品名称',
+                        width: 120,
+                    }, {
+                        field: 'price',
+                        title: '价格',
+                        width: 80,
+                        sort: true,
+                        templet: function(res) {
+                            return res.price.toFixed(2);
+                        }
+                    }, {
+                        field: 'depict',
+                        title: '商品描述',
+                    }, {
+                        field: 'category',
+                        title: '所属分类',
+                        width: 100,
+                        templet: function(res) {
+                            console.log(res);
+                            let cateMaps = {
+                                1: "水果",
+                                2: "零食",
+                                3: "服饰",
+                                4: "粮油",
+                                5: "饮料",
+                                6: "生活"
+                            };
+                            return cateMaps[res.category];
+                        }
+                    }, {
+                        field: 'isShelf',
+                        title: '状态',
+                        width: 100,
+                        sort: true,
+                        templet: function(res) {
+                            return res.isShelf ? '已上架' : '已下架';
+                        }
+                    }, {
+                        field: 'added_time',
+                        title: '添加时间',
+                        width: 170,
+                        sort: true,
+                        templet: function(res) {
+                            return util.data_format(res.added_time);
+                        }
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        toolbar: '#barDemo',
+                        width: 120
+                    }]
+                ],
+                page: true
+            });
+
+            //监听行工具事件
+            table.on('tool(test)', function(obj) {
+                var data = obj.data;
+                //console.log(obj)
+                if (obj.event === 'del') {
+                    layer.confirm('真的删除行么', function(index) {
+                        obj.del();
+                        layer.close(index);
+                    });
+                } else if (obj.event === 'edit') {
+                    layer.prompt({
+                        formType: 2,
+                        value: data.email
+                    }, function(value, index) {
+                        obj.update({
+                            email: value
+                        });
+                        layer.close(index);
+                    });
+                }
+            });
         });
 
         function initGoods() {
@@ -99,7 +172,7 @@
                 isShelf = isShelf ? '已上架' : '已下架';
                 added_time = util.data_format(added_time);
                 tbodyHtml += `<tr>
-                    <td>${index+1}</td>
+                    <td>${index + 1}</td>
                     <td>${goods_name}</td>
                     <td>${price}</td>
                     <td>${depict}</td>

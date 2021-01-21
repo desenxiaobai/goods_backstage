@@ -9,21 +9,34 @@ let controller = {
     goods_add(req, res) { res.render('goods_add'); },
     goods_edit(req, res) { res.render('goods_edit'); },
     async getGoods(req, res) {
-        let sql1 = `select * from category order by cate_id asc`;
-        let category = {};
-        let cate = await model(sql1);
-        cate.forEach(v => {
-            category[v.cate_id] = v.cate_name;
-        });
-        let sql2 = `select * from goods order by goods_id asc`;
-        model(sql2).then(data => {
-            data.forEach(value => {
-                value.category = category[value.category];
-            });
-            res.json({ data });
-        }).catch(err => {
-            res.json(serverbusy);
-        });
+        // let sql1 = `select * from category order by cate_id asc`;
+        // let category = {};
+        // let cate = await model(sql1);
+        // cate.forEach(v => {
+        //     category[v.cate_id] = v.cate_name;
+        // });
+        let { page, limit } = req.query;
+        let offset = (page - 1) * limit;
+        let sql2 = `select * from goods limit ${offset}, ${limit}`;
+        let sql3 = `select count(*) as count from goods`;
+        let promise1 = model(sql2);
+        let promise2 = model(sql3);
+        let result = await Promise.all([promise1, promise2]);
+        let data = {
+            code: 0,
+            msg: '',
+            count: result[1][0].count,
+            data: result[0]
+        }
+        res.json(data);
+        // model(sql2).then(data => {
+        // data.forEach(value => {
+        //     value.category = category[value.category];
+        // });
+        //     res.json({ data });
+        // }).catch(err => {
+        //     res.json(serverbusy);
+        // });
     },
     async delGoods(req, res) {
         let { goods_id } = req.body;
