@@ -117,19 +117,6 @@
             $('tbody').html(tbodyHtml);
         }
 
-        $('tbody').on('click', '.edit', function() {
-            let goods_id = $(this).attr('goods_id');
-            $.ajax({
-                type: 'post',
-                url: '/goods_edit',
-                data: {
-                    goods_id
-                }
-            }).then(res => {
-                console.log(res);
-            });
-        });
-
         $('tbody').on('click', '.del', function() {
             let goods_id = $(this).attr('goods_id');
             let _this = $(this);

@@ -48,3 +48,8 @@
     float: right;
     background-color: #ffa500;
 }
+
+.cate_name_input {
+    height: 30px;
+    line-height: 30px;
+}

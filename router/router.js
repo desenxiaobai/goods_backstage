@@ -21,10 +21,10 @@ router.post('/edit_goods', controller.edit_goods);
 
 router.get('/getOneGoods', controller.getOneGoods);
 
-router.get('/cate_add', controller.cate_add);
+router.post('/cate_add', controller.cate_add);
 
-router.get('/cate_edit', controller.cate_edit);
+router.post('/cate_edit', controller.cate_edit);
 
-router.get('/cate_del', controller.cate_del);
+router.post('/cate_del', controller.cate_del);
 
 module.exports = router;

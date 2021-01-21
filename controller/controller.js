@@ -1,6 +1,6 @@
 const moment = require('moment');
 const model = require('../model/model.js');
-const { delsuccess, delfail, paramerr, serverbusy, addgoodsucc, addgoodfail, editgoodsucc, editgoodfail, getfail } = require('../config/resmsg.json');
+const { delsuccess, delfail, paramerr, serverbusy, addsuccess, addfail, editsuccess, editfail, getfail } = require('../config/resmsg.json');
 
 let controller = {
     console(req, res) { res.render('console'); },
@@ -9,13 +9,13 @@ let controller = {
     goods_add(req, res) { res.render('goods_add'); },
     goods_edit(req, res) { res.render('goods_edit'); },
     async getGoods(req, res) {
-        let sql1 = `select * from category`;
+        let sql1 = `select * from category order by cate_id asc`;
         let category = {};
         let cate = await model(sql1);
         cate.forEach(v => {
             category[v.cate_id] = v.cate_name;
         });
-        let sql2 = `select * from goods`;
+        let sql2 = `select * from goods order by goods_id asc`;
         model(sql2).then(data => {
             data.forEach(value => {
                 value.category = category[value.category];
@@ -25,17 +25,16 @@ let controller = {
             res.json(serverbusy);
         });
     },
-    delGoods(req, res) {
+    async delGoods(req, res) {
         let { goods_id } = req.body;
         if (!goods_id) return res.json(paramerr);
         let sql = `delete from goods where goods_id=${goods_id}`;
-        model(sql).then(result => {
-            if (result.affectedRows) return res.json(delsuccess);
-            res.json(delfail);
-        });
+        let result = await model(sql);
+        if (result.affectedRows) return res.json(delsuccess);
+        res.json(delfail);
     },
     getCate(req, res) {
-        let sql = `select * from category`;
+        let sql = `select * from category order by cate_id asc`;
         model(sql).then(data => {
             res.json({ data });
         }).catch(err => {
@@ -48,8 +47,8 @@ let controller = {
         let sql = `insert into goods(goods_name,price,depict,category,isShelf,added_time) 
             values('${goods_name}',${price},'${depict}',${category},${isShelf},'${added_time}')`;
         let result = await model(sql);
-        if (result.affectedRows) return res.json(addgoodsucc);
-        res.json(addgoodfail);
+        if (result.affectedRows) return res.json(addsuccess);
+        res.json(addfail);
     },
     async getOneGoods(req, res) {
         let { goods_id } = req.query;
@@ -64,17 +63,33 @@ let controller = {
         let sql = `update goods set goods_name='${goods_name}',price=${price},depict='${depict}',
             category=${category},isShelf=${isShelf} where goods_id=${goods_id}`;
         let result = await model(sql);
-        if (result.affectedRows) return res.json(editgoodsucc);
-        res.json(editgoodfail);
+        if (result.affectedRows) return res.json(editsuccess);
+        res.json(editfail);
     },
-    cate_add(req, res) {
-
+    async cate_add(req, res) {
+        let { cate_name } = req.body;
+        let add_date = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
+        let sql = `insert into category(cate_name,add_date) values('${cate_name}','${add_date}')`;
+        let result = await model(sql);
+        if (result.affectedRows) return res.json(addsuccess);
+        res.json(addfail);
     },
-    cate_edit(req, res) {
-
+    async cate_edit(req, res) {
+        let { cate_id, cate_name } = req.body;
+        let sql = `update category set cate_name='${cate_name}' where cate_id=${cate_id}`;
+        let result = await model(sql);
+        if (result.affectedRows) return res.json(editsuccess);
+        res.json(editfail);
     },
-    cate_del(req, res) {
-
+    async cate_del(req, res) {
+        let { cate_id } = req.body;
+        if (!cate_id) return res.json(paramerr);
+        let sql1 = `delete from category where cate_id=${cate_id}`;
+        let result1 = await model(sql1);
+        let sql2 = `delete from goods where category=${cate_id}`;
+        let result2 = await model(sql2);
+        if (result1.affectedRows && result2.affectedRows) return res.json(delsuccess);
+        res.json(delfail);
     }
 };
 
