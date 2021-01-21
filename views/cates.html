@@ -83,19 +83,89 @@
                 } = value;
                 add_date = util.data_format(add_date);
                 tbodyHtml += `<tr>
-                    <td>${cate_id}</td>
-                    <td>${cate_name}</td>
+                    <td>${index+1}</td>
+                    <td class="cate_name">${cate_name}</td>
                     <td>${add_date}</td>
                     <td>
                         <div class="layui-btn-group">
-                            <button title='编辑' cate_id='${cate_id}' type="button" class="layui-btn layui-btn-x"><i class="layui-icon">&#xe642;</i></button>
-                            <button title='删除' cate_id='${cate_id}' type="button" class="layui-btn del layui-btn-x"><i class="layui-icon">&#xe640;</i></button>
+                            <button title='编辑' cate_id='${cate_id}' type="button" class="layui-btn layui-btn-x edit"><i class="layui-icon">&#xe642;</i></button>
+                            <button title='删除' cate_id='${cate_id}' type="button" class="layui-btn layui-btn-x del"><i class="layui-icon">&#xe640;</i></button>
                         </div>
                     </td>
                 </tr>`;
             });
             $('tbody').html(tbodyHtml);
         }
+
+        $('tbody').on('click', '.edit', function() {
+            let cate_id = $(this).attr('cate_id');
+            let cateNameEle = $(this).parents('td').siblings('.cate_name');
+            let newHtml = `<input type="text" value="${cateNameEle.html()}" required="" lay-verify="required" class="layui-input cate_name_input">`;
+            cateNameEle.html(newHtml);
+            $('.cate_name_input').focus();
+            $('.cate_name_input').on('blur', function() {
+                let cate_name = $(this).val();
+                $.ajax({
+                    type: 'post',
+                    url: '/cate_edit',
+                    data: {
+                        cate_id,
+                        cate_name
+                    }
+                }).then(res => {
+                    cateNameEle.html(cate_name);
+                    layer.msg(res.message);
+                });
+            })
+            return;
+        });
+
+
+        $('tbody').on('click', '.del', function() {
+            let cate_id = $(this).attr('cate_id');
+            let _this = $(this);
+            layer.confirm('此操作将删除该分类的所有商品，确定要删除吗？', {
+                btn: ['删除', '取消']
+            }, () => {
+                $.ajax({
+                    type: 'post',
+                    url: '/cate_del',
+                    data: {
+                        cate_id
+                    }
+                }).then(res => {
+                    if (!res.code) {
+                        _this.parents('tr').remove();
+                        $.each($('tbody tr').find('td:eq(0)'), (index, ele) => {
+                            $(ele).html(index + 1);
+                        });
+                        layer.closeAll();
+                        layer.msg(res.message);
+                    }
+                }).catch((err) => {
+                    layer.closeAll();
+                    layer.msg('删除失败');
+                });
+            });
+        });
+
+        $('.add-btn').on('click', function() {
+            layer.prompt({
+                title: '输入分类名称',
+                formType: 3
+            }, function(text, index) {
+                $.ajax({
+                    type: 'post',
+                    url: '/cate_add',
+                    data: {
+                        cate_name: text
+                    }
+                }).then(res => {
+                    layer.msg(res.message);
+                    location.href = '/cates';
+                });
+            });
+        });
     </script>
 </body>
 
