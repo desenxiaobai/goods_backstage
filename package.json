@@ -1,0 +1,19 @@
+{
+    "name": "layui-backstage",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "serve": "nodemon app.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "art-template": "^4.13.2",
+        "express": "^4.17.1",
+        "express-art-template": "^1.0.1",
+        "moment": "^2.29.1",
+        "mysql": "^2.18.1"
+    }
+}

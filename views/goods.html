@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/public/layui/css/layui.css">
+    <link rel="stylesheet" href="/public/css/common.css">
+    <script src="/public/layui/layui.js"></script>
+    <script src="/public/js/jquery-3.5.1.js"></script>
+    <script src="/public/js/moment.js"></script>
+    <script src="/public/js/util.js"></script>
+</head>
+
+<body>
+    <div class="layui-layout layui-layout-admin">
+        <!-- header -->
+        {{include "./common/header.html"}}
+
+        <!-- side -->
+        {{include "./common/side.html"}}
+
+        <div class="layui-body">
+            <!-- 内容主体区域 -->
+            <div style="padding: 15px;">
+                <h2 style="overflow: hidden;">
+                    <span>所有商品</span>
+                    <a class="layui-btn add-btn" title="添加商品" href="/goods_add">
+                        <i class="layui-icon">&#xe608;</i> 添加
+                    </a>
+                </h2>
+                <table class="layui-table">
+                    <colgroup>
+                        <col width="80">
+                        <col width="120">
+                        <col width="80">
+                        <col>
+                        <col width="90">
+                        <col width="90">
+                        <col width="170">
+                        <col width="130">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>商品ID</th>
+                            <th>商品名称</th>
+                            <th>价格</th>
+                            <th>商品描述</th>
+                            <th>所属分类</th>
+                            <th>状态</th>
+                            <th>添加时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- footer -->
+        {{include "./common/footer.html"}}
+    </div>
+
+    <script>
+        // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
+        layui.use(['element', 'layer'], function() {
+            // 初始化商品
+            initGoods();
+        });
+
+        function initGoods() {
+            $.ajax({
+                url: '/getGoods'
+            }).then(res => {
+                let {
+                    data,
+                    message
+                } = res;
+                if (data) return renderData(data);
+                layer.msg(message);
+            });
+        }
+
+        function renderData(data) {
+            let tbodyHtml = '';
+            data.forEach((value, index) => {
+                let {
+                    goods_id,
+                    goods_name,
+                    price,
+                    depict,
+                    category,
+                    isShelf,
+                    added_time
+                } = value;
+                price = price.toFixed(2);
+                isShelf = isShelf ? '已上架' : '已下架';
+                added_time = util.data_format(added_time);
+                tbodyHtml += `<tr>
+                    <td>${index+1}</td>
+                    <td>${goods_name}</td>
+                    <td>${price}</td>
+                    <td>${depict}</td>
+                    <td>${category}</td>
+                    <td>${isShelf}</td>
+                    <td>${added_time}</td>
+                    <td>
+                        <div class="layui-btn-group">
+                            <a title='编辑' href="/goods_edit?goods_id=${goods_id}" class="layui-btn layui-btn-x"><i class="layui-icon">&#xe642;</i></a>
+                            <button title='删除' goods_id='${goods_id}' class="layui-btn del layui-btn-x"><i class="layui-icon">&#xe640;</i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            $('tbody').html(tbodyHtml);
+        }
+
+        $('tbody').on('click', '.edit', function() {
+            let goods_id = $(this).attr('goods_id');
+            $.ajax({
+                type: 'post',
+                url: '/goods_edit',
+                data: {
+                    goods_id
+                }
+            }).then(res => {
+                console.log(res);
+            });
+        });
+
+        $('tbody').on('click', '.del', function() {
+            let goods_id = $(this).attr('goods_id');
+            let _this = $(this);
+            layer.confirm('确定要删除该商品吗？', {
+                btn: ['删除', '取消']
+            }, () => {
+                $.ajax({
+                    type: 'post',
+                    url: '/delGoods',
+                    data: {
+                        goods_id
+                    }
+                }).then(res => {
+                    if (!res.code) {
+                        _this.parents('tr').remove();
+                        $.each($('tbody tr').find('td:eq(0)'), (index, ele) => {
+                            $(ele).html(index + 1);
+                        });
+                        layer.closeAll();
+                        layer.msg(res.message);
+                    }
+                }).catch((err) => {
+                    layer.closeAll();
+                    layer.msg('删除失败');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

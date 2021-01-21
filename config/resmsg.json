@@ -1,0 +1,12 @@
+{
+    "delsuccess": { "code": 0, "message": "删除成功" },
+    "delfail": { "code": 1, "message": "获取失败，请刷新重试" },
+    "paramerr": { "code": 2, "message": "参数错误，请刷新重试" },
+    "serverbusy": { "code": 3, "message": "服务器繁忙，请稍后重试" },
+    "loadsuccess": { "code": 0, "message": "加载完成" },
+    "addgoodsucc": { "code": 0, "message": "添加成功" },
+    "addgoodfail": { "code": 5, "message": "添加失败，请重新尝试" },
+    "editgoodsucc": { "code": 0, "message": "编辑成功" },
+    "editgoodfail": { "code": 6, "message": "编辑失败，请重新尝试" },
+    "getfail": { "code": 4, "message": "获取失败，请刷新重试" }
+}

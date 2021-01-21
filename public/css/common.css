@@ -1,0 +1,50 @@
+#logo {
+    font-size: 25px;
+    color: #8fbcff;
+}
+
+.layui-nav .layui-this:after,
+.layui-nav-bar,
+.layui-nav-tree .layui-nav-itemed:after,
+.layui-nav .layui-nav-child dd.layui-this a,
+.layui-nav-child dd.layui-this,
+.layui-nav-tree .layui-nav-bar,
+.layui-nav-tree .layui-nav-child dd.layui-this,
+.layui-nav-tree .layui-nav-child dd.layui-this a,
+.layui-nav-tree .layui-this,
+.layui-nav-tree .layui-this>a,
+.layui-nav-tree .layui-this>a:hover,
+.layui-btn,
+.layui-form-checked span,
+.layui-form-checked:hover span,
+.layui-form-onswitch,
+.layui-form-select dl dd.layui-this {
+    background-color: #4b93ff;
+}
+
+.layui-form-onswitch,
+.layui-btn-primary:hover {
+    border-color: #4b93ff;
+}
+
+.layui-btn-x {
+    height: 30px;
+    line-height: 30px;
+    padding: 0 14px;
+}
+
+.layui-form-checked i,
+.layui-form-checked:hover i,
+.layui-form-radio>i:hover,
+.layui-form-radioed>i {
+    color: #4b93ff;
+}
+
+.layui-btn-primary {
+    background-color: #fff;
+}
+
+.add-btn {
+    float: right;
+    background-color: #ffa500;
+}
