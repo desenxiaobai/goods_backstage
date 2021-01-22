@@ -43,7 +43,7 @@
 
     <script>
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
-        layui.use(['element', 'layer', 'table'], function() {
+        layui.use(['element', 'layer', 'table'], function () {
             let table = layui.table;
             // 初始化商品
             let tableInit = table.render({
@@ -62,7 +62,7 @@
                         width: 80,
                         minWidth: 86,
                         sort: true,
-                        templet: function(res) {
+                        templet: function (res) {
                             return res.price.toFixed(2);
                         }
                     }, {
@@ -72,7 +72,7 @@
                         field: 'category',
                         title: '所属分类',
                         width: 100,
-                        templet: function(res) {
+                        templet: function (res) {
                             let cateMaps = {
                                 1: "水果",
                                 2: "零食",
@@ -89,7 +89,7 @@
                         width: 100,
                         minWidth: 76,
                         sort: true,
-                        templet: function(res) {
+                        templet: function (res) {
                             return res.isShelf ? '已上架' : '已下架';
                         }
                     }, {
@@ -97,7 +97,7 @@
                         title: '添加时间',
                         width: 170,
                         sort: true,
-                        templet: function(res) {
+                        templet: function (res) {
                             return util.data_format(res.added_time);
                         }
                     }, {
@@ -112,9 +112,9 @@
             });
 
             //监听行工具事件
-            table.on('tool(test)', function(obj) {
-                let goods_id = obj.data.goods_id;
-                switch (obj.event) {
+            table.on('tool(test)', function ({data,event}) {
+                let goods_id = data.goods_id;
+                switch (event) {
                     case 'del':
                         del(goods_id);
                         tableInit.reload();
@@ -132,13 +132,11 @@
                     $.ajax({
                         type: 'post',
                         url: '/delGoods',
-                        data: {
-                            goods_id
-                        }
-                    }).then(res => {
+                        data: { goods_id }
+                    }).then(({ code, message }) => {
                         layer.closeAll();
-                        layer.msg(res.message);
-                        if (!res.code) tableInit.reload();
+                        layer.msg(message);
+                        if (!code) tableInit.reload();
                     });
                 });
             }

@@ -1,6 +1,6 @@
 const moment = require('moment');
 const model = require('../model/model.js');
-const { delsuccess, delfail, paramerr, serverbusy, addsuccess, addfail, editsuccess, editfail, getfail } = require('../config/resmsg.json');
+const { delsuccess, delfail, paramerr, addsuccess, addfail, editsuccess, editfail, getfail } = require('../config/resmsg.json');
 
 let controller = {
     console(req, res) { res.render('console'); },
@@ -10,10 +10,10 @@ let controller = {
     async getGoods(req, res) {
         let { page, limit } = req.query;
         let offset = (page - 1) * limit;
-        let sql2 = `select * from goods limit ${offset}, ${limit}`;
-        let sql3 = `select count(*) as count from goods`;
-        let promise1 = model(sql2);
-        let promise2 = model(sql3);
+        let sql1 = `select * from goods order by goods_id desc limit ${offset}, ${limit}`;
+        let sql2 = `select count(*) as count from goods`;
+        let promise1 = model(sql1);
+        let promise2 = model(sql2);
         let result = await Promise.all([promise1, promise2]);
         let data = {
             code: 0,

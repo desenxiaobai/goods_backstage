@@ -24,13 +24,15 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">商品名称</label>
                         <div class="layui-input-inline">
-                            <input type="text" name="goods_name" required lay-verify="required" autocomplete="off" class="layui-input">
+                            <input type="text" name="goods_name" required lay-verify="required" autocomplete="off"
+                                class="layui-input">
                         </div>
                     </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label">价格</label>
                         <div class="layui-input-inline">
-                            <input type="number" name="price" required lay-verify="required" autocomplete="off" class="layui-input">
+                            <input type="number" name="price" required lay-verify="required" autocomplete="off"
+                                class="layui-input">
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -73,15 +75,15 @@
         let [, goods_id] = [...reg.exec(location.href)];
 
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
-        layui.use(['element', 'form', 'layer'], function() {
+        layui.use(['element', 'form', 'layer'], function () {
             let form = layui.form;
 
             // 初始化分类选项并回显数据
             $.ajax({
                 url: '/getCate',
-            }).then(res => {
-                if (res.message) return layer.msg(res.message);
-                initCate(res.data);
+            }).then(({ data, message }) => {
+                if (message) return layer.msg(message);
+                initCate(data);
                 // 回显数据
                 $.ajax({
                     url: '/getOneGoods?goods_id=' + goods_id
@@ -97,18 +99,15 @@
                 });
             });
 
-            form.on('submit(formDemo)', function(data) {
-                let oldHtml = $(data.elem).html();
-                $(data.elem).addClass('layui-btn-disabled').html('编辑中...');
+            form.on('submit(formDemo)', function ({ elem, field }) {
+                let oldHtml = $(elem).html();
+                $(elem).addClass('layui-btn-disabled').html('编辑中...');
                 $.ajax({
                     type: 'post',
                     url: '/edit_goods',
-                    data: {
-                        ...data.field,
-                        goods_id
-                    }
+                    data: { ...field, goods_id }
                 }).then(res => {
-                    $(data.elem).removeClass('layui-btn-disabled').html(oldHtml);
+                    $(elem).removeClass('layui-btn-disabled').html(oldHtml);
                     layer.msg(res.message);
                     if (!res.code) location.href = '/goods';
                 });

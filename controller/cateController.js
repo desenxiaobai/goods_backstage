@@ -1,6 +1,6 @@
 const moment = require('moment');
 const model = require('../model/model.js');
-const { delsuccess, delfail, paramerr, serverbusy, addsuccess, addfail, editsuccess, editfail, getfail } = require('../config/resmsg.json');
+const { delsuccess, delfail, paramerr, addsuccess, addfail, editsuccess, editfail, initfail } = require('../config/resmsg.json');
 
 let controller = {
     cates(req, res) { res.render('cates'); },
@@ -9,7 +9,7 @@ let controller = {
         model(sql).then(data => {
             res.json({ data });
         }).catch(err => {
-            res.json(serverbusy);
+            res.json(initfail);
         });
     },
     async cate_add(req, res) {
@@ -31,10 +31,11 @@ let controller = {
         let { cate_id } = req.body;
         if (!cate_id) return res.json(paramerr);
         let sql1 = `delete from category where cate_id=${cate_id}`;
-        let result1 = await model(sql1);
+        let promise1 = model(sql1);
         let sql2 = `delete from goods where category=${cate_id}`;
-        let result2 = await model(sql2);
-        if (result1.affectedRows && result2.affectedRows) return res.json(delsuccess);
+        let promise2 = model(sql2);
+        let result = await Promise.all([promise1, promise2]);
+        if (result[0].affectedRows) return res.json(delsuccess);
         res.json(delfail);
     }
 };
