@@ -56,10 +56,13 @@
 
 .add-btn {
     float: right;
-    background-color: #ffa500;
 }
 
 .cate_name_input {
     height: 30px;
     line-height: 30px;
+}
+
+.layui-btn-danger {
+    background-color: #FF5722;
 }

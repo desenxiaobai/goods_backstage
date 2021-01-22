@@ -4,13 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/public/layui/css/layui.css">
-    <link rel="stylesheet" href="/public/css/common.css">
-    <script src="/public/layui/layui.js"></script>
-    <script src="/public/js/jquery-3.5.1.js"></script>
-    <script src="/public/js/moment.js"></script>
-    <script src="/public/js/util.js"></script>
+    <title>后台-商品管理-所有商品</title>
+    {{include "./common/link.html"}}
 </head>
 
 <body>
@@ -38,9 +33,12 @@
         {{include "./common/footer.html"}}
     </div>
 
+    {{include "./common/script.html"}}
     <script type="text/html" id="barDemo">
-        <a class="layui-btn layui-btn-xs" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
-        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
+        <div class="layui-btn-group">
+            <a class="layui-btn layui-btn-x" lay-event="edit" title='编辑'><i class="layui-icon">&#xe642;</i></a>
+            <a class="layui-btn layui-btn-danger layui-btn-x" lay-event="del" title='删除'><i class="layui-icon">&#xe640;</i></a>
+        </div>
     </script>
 
     <script>
@@ -48,22 +46,13 @@
         layui.use(['element', 'layer', 'table'], function() {
             let table = layui.table;
             // 初始化商品
-            // initGoods();
-
-            table.render({
+            let tableInit = table.render({
                 elem: '#test',
                 url: '/getGoods',
                 toolbar: '#toolbarDemo', //开启头部工具栏，并为其绑定左侧模板
                 title: '商品数据表',
                 cols: [
                     [{
-                        field: 'goods_id',
-                        title: '商品ID',
-                        width: 80,
-                        fixed: 'left',
-                        unresize: true,
-                        sort: true
-                    }, {
                         field: 'goods_name',
                         title: '商品名称',
                         width: 120,
@@ -71,6 +60,7 @@
                         field: 'price',
                         title: '价格',
                         width: 80,
+                        minWidth: 86,
                         sort: true,
                         templet: function(res) {
                             return res.price.toFixed(2);
@@ -83,7 +73,6 @@
                         title: '所属分类',
                         width: 100,
                         templet: function(res) {
-                            console.log(res);
                             let cateMaps = {
                                 1: "水果",
                                 2: "零食",
@@ -98,6 +87,7 @@
                         field: 'isShelf',
                         title: '状态',
                         width: 100,
+                        minWidth: 76,
                         sort: true,
                         templet: function(res) {
                             return res.isShelf ? '已上架' : '已下架';
@@ -114,7 +104,8 @@
                         fixed: 'right',
                         title: '操作',
                         toolbar: '#barDemo',
-                        width: 120
+                        width: 130,
+                        minWidth: 130
                     }]
                 ],
                 page: true
@@ -122,100 +113,39 @@
 
             //监听行工具事件
             table.on('tool(test)', function(obj) {
-                var data = obj.data;
-                //console.log(obj)
-                if (obj.event === 'del') {
-                    layer.confirm('真的删除行么', function(index) {
-                        obj.del();
-                        layer.close(index);
-                    });
-                } else if (obj.event === 'edit') {
-                    layer.prompt({
-                        formType: 2,
-                        value: data.email
-                    }, function(value, index) {
-                        obj.update({
-                            email: value
-                        });
-                        layer.close(index);
-                    });
+                let goods_id = obj.data.goods_id;
+                switch (obj.event) {
+                    case 'del':
+                        del(goods_id);
+                        tableInit.reload();
+                        break;
+                    case 'edit':
+                        edit(goods_id);
+                        break;
                 }
             });
-        });
 
-        function initGoods() {
-            $.ajax({
-                url: '/getGoods'
-            }).then(res => {
-                let {
-                    data,
-                    message
-                } = res;
-                if (data) return renderData(data);
-                layer.msg(message);
-            });
-        }
-
-        function renderData(data) {
-            let tbodyHtml = '';
-            data.forEach((value, index) => {
-                let {
-                    goods_id,
-                    goods_name,
-                    price,
-                    depict,
-                    category,
-                    isShelf,
-                    added_time
-                } = value;
-                price = price.toFixed(2);
-                isShelf = isShelf ? '已上架' : '已下架';
-                added_time = util.data_format(added_time);
-                tbodyHtml += `<tr>
-                    <td>${index + 1}</td>
-                    <td>${goods_name}</td>
-                    <td>${price}</td>
-                    <td>${depict}</td>
-                    <td>${category}</td>
-                    <td>${isShelf}</td>
-                    <td>${added_time}</td>
-                    <td>
-                        <div class="layui-btn-group">
-                            <a title='编辑' href="/goods_edit?goods_id=${goods_id}" class="layui-btn layui-btn-x"><i class="layui-icon">&#xe642;</i></a>
-                            <button title='删除' goods_id='${goods_id}' class="layui-btn del layui-btn-x"><i class="layui-icon">&#xe640;</i></button>
-                        </div>
-                    </td>
-                </tr>`;
-            });
-            $('tbody').html(tbodyHtml);
-        }
-
-        $('tbody').on('click', '.del', function() {
-            let goods_id = $(this).attr('goods_id');
-            let _this = $(this);
-            layer.confirm('确定要删除该商品吗？', {
-                btn: ['删除', '取消']
-            }, () => {
-                $.ajax({
-                    type: 'post',
-                    url: '/delGoods',
-                    data: {
-                        goods_id
-                    }
-                }).then(res => {
-                    if (!res.code) {
-                        _this.parents('tr').remove();
-                        $.each($('tbody tr').find('td:eq(0)'), (index, ele) => {
-                            $(ele).html(index + 1);
-                        });
+            function del(goods_id) {
+                layer.confirm('确定要删除该商品吗？', {
+                    btn: ['删除', '取消']
+                }, () => {
+                    $.ajax({
+                        type: 'post',
+                        url: '/delGoods',
+                        data: {
+                            goods_id
+                        }
+                    }).then(res => {
                         layer.closeAll();
                         layer.msg(res.message);
-                    }
-                }).catch((err) => {
-                    layer.closeAll();
-                    layer.msg('删除失败');
+                        if (!res.code) tableInit.reload();
+                    });
                 });
-            });
+            }
+
+            function edit(goods_id) {
+                location.href = `/goods_edit?goods_id=${goods_id}`;
+            }
         });
     </script>
 </body>
