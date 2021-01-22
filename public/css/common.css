@@ -18,13 +18,22 @@
 .layui-form-checked span,
 .layui-form-checked:hover span,
 .layui-form-onswitch,
-.layui-form-select dl dd.layui-this {
+.layui-form-select dl dd.layui-this,
+.layui-laypage .layui-laypage-curr .layui-laypage-em,
+.layui-form-checked[lay-skin=primary] i {
     background-color: #4b93ff;
 }
 
+.layui-table-tool-panel span {
+    background-color: transparent!important;
+}
+
 .layui-form-onswitch,
-.layui-btn-primary:hover {
-    border-color: #4b93ff;
+.layui-btn-primary:hover,
+.layui-laypage input:focus,
+.layui-laypage select:focus,
+.layui-form-checked[lay-skin=primary] i {
+    border-color: #4b93ff!important;
 }
 
 .layui-btn-x {
@@ -36,7 +45,8 @@
 .layui-form-checked i,
 .layui-form-checked:hover i,
 .layui-form-radio>i:hover,
-.layui-form-radioed>i {
+.layui-form-radioed>i,
+.layui-laypage a:hover {
     color: #4b93ff;
 }
 
@@ -46,10 +56,13 @@
 
 .add-btn {
     float: right;
-    background-color: #ffa500;
 }
 
 .cate_name_input {
     height: 30px;
     line-height: 30px;
+}
+
+.layui-btn-danger {
+    background-color: #FF5722;
 }

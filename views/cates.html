@@ -4,13 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/public/layui/css/layui.css">
-    <link rel="stylesheet" href="/public/css/common.css">
-    <script src="/public/layui/layui.js"></script>
-    <script src="/public/js/jquery-3.5.1.js"></script>
-    <script src="/public/js/moment.js"></script>
-    <script src="/public/js/util.js"></script>
+    <title>后台-商品管理-商品分类</title>
+    {{include "./common/link.html"}}
 </head>
 
 <body>
@@ -53,6 +48,7 @@
         {{include "./common/footer.html"}}
     </div>
 
+    {{include "./common/script.html"}}
     <script>
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
         layui.use(['layer', 'element'], function() {

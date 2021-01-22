@@ -4,11 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/public/layui/css/layui.css">
-    <link rel="stylesheet" href="/public/css/common.css">
-    <script src="/public/layui/layui.js"></script>
-    <script src="/public/js/jquery-3.5.1.js"></script>
+    <title>后台-商品管理-编辑商品</title>
+    {{include "./common/link.html"}}
 </head>
 
 <body>
@@ -23,7 +20,7 @@
             <!-- 内容主体区域 -->
             <div style="padding: 15px;">
                 <h2>编辑商品</h2>
-                <form class="layui-form">
+                <form class="layui-form" lay-filter="oneCate">
                     <div class="layui-form-item">
                         <label class="layui-form-label">商品名称</label>
                         <div class="layui-input-inline">
@@ -70,12 +67,35 @@
         {{include "./common/footer.html"}}
     </div>
 
+    {{include "./common/script.html"}}
     <script>
         let reg = /goods_id=(.*)&?/;
         let [, goods_id] = [...reg.exec(location.href)];
+
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
         layui.use(['element', 'form', 'layer'], function() {
             let form = layui.form;
+
+            // 初始化分类选项并回显数据
+            $.ajax({
+                url: '/getCate',
+            }).then(res => {
+                if (res.message) return layer.msg(res.message);
+                initCate(res.data);
+                // 回显数据
+                $.ajax({
+                    url: '/getOneGoods?goods_id=' + goods_id
+                }).then(res => {
+                    if (res.code) return layer.msg(res.message);
+                    form.val("oneCate", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                        "goods_name": res.goods_name, // "name": "value"
+                        "price": res.price.toFixed(2),
+                        "depict": res.depict,
+                        "category": res.category,
+                        "isShelf": res.isShelf,
+                    });
+                });
+            });
 
             form.on('submit(formDemo)', function(data) {
                 let oldHtml = $(data.elem).html();
@@ -96,32 +116,12 @@
             });
         });
 
-        // 初始化分类选项和回显数据
-        $.ajax({
-            url: '/getCate',
-            success: res => {
-                if (res.message) return layer.msg(res.message);
-                initCate(res.data);
-                // 回显数据
-                $.ajax({
-                    url: '/getOneGoods?goods_id=' + goods_id
-                }).then(res => {
-                    if (res.code) return layer.msg(res.message);
-                    $(`input[name="goods_name"]`).val(res.goods_name);
-                    $(`input[name="price"]`).val(res.price);
-                    $(`textarea[name="depict"]`).val(res.depict);
-                    $(`select[name="category"]`).val(res.category);
-                    $(`input[name="isShelf"][value="${res.isShelf}"]`).prop('checked', true);
-                });
-            }
-        });
-
         function initCate(data) {
             let cateHtml = '<option value=""></option>';
             data.forEach(v => {
                 cateHtml += `<option value="${v.cate_id}">${v.cate_name}</option>`;
             });
-            $('select[name="category"]').html(cateHtml);
+            $("select[name='category']").html(cateHtml);
         }
     </script>
 </body>
