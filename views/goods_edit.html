@@ -22,11 +22,22 @@
                 <h2>编辑商品</h2>
                 <form class="layui-form" lay-filter="oneCate">
                     <div class="layui-form-item">
-                        <label class="layui-form-label">商品名称</label>
+                        <label class="layui-form-label">商品标题</label>
                         <div class="layui-input-inline">
-                            <input type="text" name="goods_name" required lay-verify="required" autocomplete="off"
+                            <input type="text" name="goods_title" required lay-verify="required" autocomplete="off"
                                 class="layui-input">
                         </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">详情图</label>
+                        <button type="button" class="layui-btn" id="upload_dp">
+                            <i class="layui-icon">&#xe67c;</i>上传图片
+                        </button>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">预览</label>
+                        <input type="hidden" name="detailspic" value="">
+                        <img src="" alt="暂无图片" class="preview preview_img">
                     </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label">价格</label>
@@ -42,17 +53,17 @@
                             </select>
                         </div>
                     </div>
-                    <div class="layui-form-item">
+                    <!-- <div class="layui-form-item">
                         <label class="layui-form-label">是否上架</label>
                         <div class="layui-input-block">
-                            <input type="radio" name="isShelf" value="1" title="上架" checked>
-                            <input type="radio" name="isShelf" value="0" title="下架">
+                            <input type="radio" name="status" value="0" title="上架" checked>
+                            <input type="radio" name="status" value="1" title="下架">
                         </div>
-                    </div>
+                    </div> -->
                     <div class="layui-form-item layui-form-text">
-                        <label class="layui-form-label">商品描述</label>
+                        <label class="layui-form-label">详情描述</label>
                         <div class="layui-input-block">
-                            <textarea name="depict" placeholder="描述一下商品吧~" class="layui-textarea"></textarea>
+                            <div id="depict"></div>
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -70,38 +81,43 @@
     </div>
 
     {{include "./common/script.html"}}
+    <script src="/public/js/wangEditor.js"></script>
     <script>
+        const E = window.wangEditor;
+        const editor = new E('#depict');
+        editor.config.uploadImgShowBase64 = true;
+        editor.create();
+
         let reg = /goods_id=(.*)&?/;
         let [, goods_id] = [...reg.exec(location.href)];
 
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
-        layui.use(['element', 'form', 'layer'], function () {
+        layui.use(['element', 'form', 'layer', 'upload'], function () {
             let form = layui.form;
+            let upload = layui.upload;
 
-            // 初始化分类选项并回显数据
-            $.ajax({
-                url: '/getCate',
-            }).then(({ data, message }) => {
-                if (message) return layer.msg(message);
-                initCate(data);
-                // 回显数据
-                $.ajax({
-                    url: '/getOneGoods?goods_id=' + goods_id
-                }).then(res => {
-                    if (res.code) return layer.msg(res.message);
-                    form.val("oneCate", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
-                        "goods_name": res.goods_name, // "name": "value"
-                        "price": res.price.toFixed(2),
-                        "depict": res.depict,
-                        "category": res.category,
-                        "isShelf": res.isShelf,
-                    });
-                });
+            upload.render({
+                elem: '#upload_dp' //绑定元素
+                , url: '/upload' //上传接口
+                , done: function ({ message, src }) {
+                    //上传完毕回调
+                    if (!src) return layer.msg(message);
+                    $('.preview').attr('src', src);
+                    $('input[name="detailspic"]').val(src);
+                }
             });
 
+            // 初始化分类选项并回显数据
+            initData();
+
             form.on('submit(formDemo)', function ({ elem, field }) {
+                if(!editor.txt.html()) {
+                    layer.msg('请输入详情描述');
+                    return false;
+                }
                 let oldHtml = $(elem).html();
                 $(elem).addClass('layui-btn-disabled').html('编辑中...');
+                field.depict = editor.txt.html();
                 $.ajax({
                     type: 'post',
                     url: '/edit_goods',
@@ -113,15 +129,39 @@
                 });
                 return false;
             });
-        });
 
-        function initCate(data) {
-            let cateHtml = '<option value=""></option>';
-            data.forEach(v => {
-                cateHtml += `<option value="${v.cate_id}">${v.cate_name}</option>`;
-            });
-            $("select[name='category']").html(cateHtml);
-        }
+            function initData(data) {
+                $.ajax({
+                    url: '/getCate',
+                }).then(({ data, message }) => {
+                    if (message) return layer.msg(message);
+                    let cateHtml = '<option value=""></option>';
+                    data.forEach(v => {
+                        cateHtml += `<option value="${v.cate_id}">${v.cate_name}</option>`;
+                    });
+                    $("select[name='category']").html(cateHtml);
+                    data_back();
+                });
+            }
+
+            function data_back() {
+                $.ajax({
+                    url: '/getOneGoods?goods_id=' + goods_id
+                }).then(res => {
+                    if (res.code) return layer.msg(res.message);
+                    let { goods_title, detailspic, price, depict, category } = res;
+                    price = price.toFixed(2);
+                    $('.preview').attr('src', detailspic);
+                    editor.txt.html(depict);
+                    // oneCate 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                    form.val("oneCate", {
+                        goods_title,
+                        price,
+                        category
+                    });
+                });
+            }
+        });
     </script>
 </body>
 

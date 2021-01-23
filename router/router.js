@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 const goodsController = require('../controller/goodsController.js');
 const cateController = require('../controller/cateController.js');
 
@@ -12,6 +14,7 @@ router.post('/delGoods', goodsController.delGoods);
 router.post('/add_goods', goodsController.add_goods);
 router.post('/edit_goods', goodsController.edit_goods);
 router.get('/getOneGoods', goodsController.getOneGoods);
+router.post('/upload', upload.single('file'), goodsController.upload);
 
 router.get('/getCate', cateController.getCate);
 router.get('/cates', cateController.cates);

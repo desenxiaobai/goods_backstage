@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>后台-商品管理-所有商品</title>
     {{include "./common/link.html"}}
+    <link rel="stylesheet" href="/public/css/lightbox.css">
 </head>
 
 <body>
@@ -19,7 +20,7 @@
         <div class="layui-body">
             <!-- 内容主体区域 -->
             <div style="padding: 15px;">
-                <h2 style="overflow: hidden;">
+                <h2>
                     <span>所有商品</span>
                     <a class="layui-btn add-btn" title="添加商品" href="/goods_add">
                         <i class="layui-icon">&#xe608;</i> 添加
@@ -34,12 +35,14 @@
     </div>
 
     {{include "./common/script.html"}}
-    <script type="text/html" id="barDemo">
+    <script src="/public/js/lightbox-plus-jquery.js"></script>
+    <!-- <script type="text/html" id="barDemo">
         <div class="layui-btn-group">
-            <a class="layui-btn layui-btn-x" lay-event="edit" title='编辑'><i class="layui-icon">&#xe642;</i></a>
-            <a class="layui-btn layui-btn-danger layui-btn-x" lay-event="del" title='删除'><i class="layui-icon">&#xe640;</i></a>
+            <a class="layui-btn layui-btn-xs" lay-event="show">查看内容</a>
+            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</i></a>
         </div>
-    </script>
+    </script> -->
 
     <script>
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
@@ -53,77 +56,114 @@
                 title: '商品数据表',
                 cols: [
                     [{
-                        field: 'goods_name',
-                        title: '商品名称',
-                        width: 120,
+                        field: 'goods_title',
+                        title: '商品标题',
+                        // width: 200,
+                    }, {
+                        field: 'detailspic',
+                        title: '详情图',
+                        width: 180,
+                        templet({ goods_title, detailspic }) {
+                            let temStr = `<a class="example-image-link" href="${detailspic}" data-lightbox="example-1" data-title="${goods_title}">
+                                <img class="example-image dp_img" src="${detailspic}" alt="加载中..." />
+                            </a>`;
+                            return temStr;
+                        }
                     }, {
                         field: 'price',
                         title: '价格',
-                        width: 80,
-                        minWidth: 86,
+                        width: 100,
                         sort: true,
-                        templet: function (res) {
+                        templet(res) {
                             return res.price.toFixed(2);
                         }
                     }, {
-                        field: 'depict',
-                        title: '商品描述',
-                    }, {
-                        field: 'category',
+                        field: 'cate_name',
                         title: '所属分类',
-                        width: 100,
-                        templet: function (res) {
-                            let cateMaps = {
-                                1: "水果",
-                                2: "零食",
-                                3: "服饰",
-                                4: "粮油",
-                                5: "饮料",
-                                6: "生活"
-                            };
-                            return cateMaps[res.category];
-                        }
+                        width: 100
                     }, {
-                        field: 'isShelf',
+                        field: 'status',
                         title: '状态',
                         width: 100,
-                        minWidth: 76,
+                        minWidth: 80,
                         sort: true,
-                        templet: function (res) {
-                            return res.isShelf ? '已上架' : '已下架';
+                        templet(res) {
+                            let statusMaps = {
+                                0: "<span class='layui-badge layui-bg-blue'>已上架</span>",
+                                1: "<span class='layui-badge layui-bg-gray'>已下架</span>",
+                                2: "<span class='layui-badge layui-bg-orange'>待审核</span>",
+                                3: "<span class='layui-badge' style='background-color:red'>不通过</span>",
+                            };
+                            return statusMaps[res.status];
                         }
                     }, {
                         field: 'added_time',
                         title: '添加时间',
-                        width: 170,
+                        width: 190,
                         sort: true,
-                        templet: function (res) {
+                        templet(res) {
                             return util.data_format(res.added_time);
                         }
                     }, {
                         fixed: 'right',
                         title: '操作',
-                        toolbar: '#barDemo',
-                        width: 130,
-                        minWidth: 130
+                        width: 200,
+                        unresize: true,
+                        // toolbar: '#barDemo',
+                        templet({ status }) {
+                            let temStr = `<div class="layui-btn-group">
+                                <a class="layui-btn layui-btn-xs" lay-event="show">查看内容</a>
+                                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>`;
+                            switch (status) {
+                                case 0:
+                                    temStr += `<a class="layui-btn layui-btn-xs layui-bg-orange" lay-event="unshelf">下架</a>`;
+                                    break;
+                                case 1:
+                                    temStr += `<a class="layui-btn layui-btn-xs layui-bg-orange" lay-event="shelf">上架</a>`;
+                                    break;
+                                case 2:
+                                    temStr += `<a class="layui-btn layui-btn-xs layui-bg-orange" lay-event="verify">审核</a>`;
+                                    break;
+                            }
+                            temStr += `<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</i></a></div>`;
+                            return temStr;
+                        }
                     }]
                 ],
                 page: true
             });
 
             //监听行工具事件
-            table.on('tool(test)', function ({data,event}) {
-                let goods_id = data.goods_id;
+            table.on('tool(test)', function ({ data, event }) {
+                let { goods_id, goods_title, depict } = data;
                 switch (event) {
-                    case 'del':
-                        del(goods_id);
-                        tableInit.reload();
+                    case 'show':
+                        show(goods_title, depict);
                         break;
                     case 'edit':
                         edit(goods_id);
                         break;
+                    case 'del':
+                        del(goods_id);
+                        tableInit.reload();
+                        break;
                 }
             });
+
+            function show(title, content) {
+                layer.open({
+                    type: 1,
+                    title: title,
+                    shadeClose: true,
+                    // maxmin: true, //开启最大化最小化按钮
+                    area: ['800px', '550px'],
+                    content: content //iframe的url，no代表不显示滚动条
+                });
+            }
+
+            function edit(goods_id) {
+                location.href = `/goods_edit?goods_id=${goods_id}`;
+            }
 
             function del(goods_id) {
                 layer.confirm('确定要删除该商品吗？', {
@@ -139,10 +179,6 @@
                         if (!code) tableInit.reload();
                     });
                 });
-            }
-
-            function edit(goods_id) {
-                location.href = `/goods_edit?goods_id=${goods_id}`;
             }
         });
     </script>

@@ -1,4 +1,4 @@
-const moment = require('moment');
+const fs = require('fs');
 const model = require('../model/model.js');
 const { delsuccess, delfail, paramerr, addsuccess, addfail, editsuccess, editfail, getfail } = require('../config/resmsg.json');
 
@@ -7,10 +7,12 @@ let controller = {
     goods(req, res) { res.render('goods'); },
     goods_add(req, res) { res.render('goods_add'); },
     goods_edit(req, res) { res.render('goods_edit'); },
+
     async getGoods(req, res) {
         let { page, limit } = req.query;
         let offset = (page - 1) * limit;
-        let sql1 = `select * from goods order by goods_id desc limit ${offset}, ${limit}`;
+        let sql1 = `select t1.*,t2.cate_name from goods t1 left join category t2 on t1.category=t2.cate_id 
+            order by goods_id desc limit ${offset},${limit}`;
         let sql2 = `select count(*) as count from goods`;
         let promise1 = model(sql1);
         let promise2 = model(sql2);
@@ -32,10 +34,9 @@ let controller = {
         res.json(delfail);
     },
     async add_goods(req, res) {
-        let { goods_name, price, category, isShelf, depict } = req.body;
-        let added_time = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
-        let sql = `insert into goods(goods_name,price,depict,category,isShelf,added_time) 
-            values('${goods_name}',${price},'${depict}',${category},${isShelf},'${added_time}')`;
+        let { goods_title, detailspic, price, category, status, depict } = req.body;
+        let sql = `insert into goods(goods_title,detailspic,price,depict,category,added_time) 
+            values('${goods_title}','${detailspic}',${price},'${depict}',${category},now())`;
         let result = await model(sql);
         if (result.affectedRows) return res.json(addsuccess);
         res.json(addfail);
@@ -49,13 +50,24 @@ let controller = {
         res.json(getfail);
     },
     async edit_goods(req, res) {
-        let { goods_id, goods_name, price, category, isShelf, depict } = req.body;
-        let sql = `update goods set goods_name='${goods_name}',price=${price},depict='${depict}',
-            category=${category},isShelf=${isShelf} where goods_id=${goods_id}`;
+        let { goods_id, detailspic, goods_title, price, category, depict } = req.body;
+        let sql = `update goods set goods_title='${goods_title}',detailspic='${detailspic}',price=${price}, 
+            depict='${depict}',category=${category} where goods_id=${goods_id}`;
         let result = await model(sql);
         if (result.affectedRows) return res.json(editsuccess);
         res.json(editfail);
     },
+    upload({ file }, res) {
+        if (!file) return res.json({ message: '没有上传文件', src: null});
+        let { originalname, destination, filename } = file;
+        let ext = originalname.substring(originalname.lastIndexOf('.'));
+        let oldPath = `${destination}${filename}`;
+        let newPath = `${oldPath}${ext}`;
+        fs.rename(oldPath, newPath, err => {
+            if (err) throw err;
+            res.json({ message: '上传成功', src: newPath });
+        });
+    }
 };
 
 module.exports = controller;
