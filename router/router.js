@@ -15,6 +15,7 @@ router.post('/add_goods', goodsController.add_goods);
 router.post('/edit_goods', goodsController.edit_goods);
 router.get('/getOneGoods', goodsController.getOneGoods);
 router.post('/upload', upload.single('file'), goodsController.upload);
+router.post('/updstatus', goodsController.updstatus);
 
 router.get('/getCate', cateController.getCate);
 router.get('/cates', cateController.cates);

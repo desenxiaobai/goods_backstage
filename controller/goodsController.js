@@ -1,6 +1,7 @@
 const fs = require('fs');
 const model = require('../model/model.js');
-const { delsuccess, delfail, paramerr, addsuccess, addfail, editsuccess, editfail, getfail } = require('../config/resmsg.json');
+const { delsuccess, delfail, paramerr, addsuccess, addfail, editsuccess, editfail, getfail, operatesuccess, operatefail }
+    = require('../config/resmsg.json');
 
 let controller = {
     console(req, res) { res.render('console'); },
@@ -50,9 +51,10 @@ let controller = {
         res.json(getfail);
     },
     async edit_goods(req, res) {
-        let { goods_id, detailspic, goods_title, price, category, depict } = req.body;
+        let { goods_id, detailspic, goods_title, price, category, depict, status } = req.body;
+        status = status == 3 ? 2 : status;
         let sql = `update goods set goods_title='${goods_title}',detailspic='${detailspic}',price=${price}, 
-            depict='${depict}',category=${category} where goods_id=${goods_id}`;
+            depict='${depict}',category=${category},status=${status} where goods_id=${goods_id}`;
         let result = await model(sql);
         if (result.affectedRows) return res.json(editsuccess);
         res.json(editfail);
@@ -67,6 +69,13 @@ let controller = {
             if (err) throw err;
             res.json({ message: '上传成功', src: newPath });
         });
+    },
+    async updstatus(req,res){
+        let {goods_id,status}=req.body;
+        let sql = `update goods set status=${status} where goods_id=${goods_id}`;
+        let result = await model(sql);
+        if(result.affectedRows) return res.json(operatesuccess);
+        res.json(operatefail);
     }
 };
 

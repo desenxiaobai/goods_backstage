@@ -54,6 +54,8 @@
                 url: '/getGoods',
                 toolbar: '#toolbarDemo', //开启头部工具栏，并为其绑定左侧模板
                 title: '商品数据表',
+                limit: 5,
+                limits: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100],
                 cols: [
                     [{
                         field: 'goods_title',
@@ -135,13 +137,22 @@
 
             //监听行工具事件
             table.on('tool(test)', function ({ data, event }) {
-                let { goods_id, goods_title, depict } = data;
+                let { goods_id, goods_title, depict, status } = data;
                 switch (event) {
                     case 'show':
                         show(goods_title, depict);
                         break;
                     case 'edit':
-                        edit(goods_id);
+                        edit(goods_id, status);
+                        break;
+                    case 'unshelf':
+                        unshelf(goods_id);
+                        break;
+                    case 'shelf':
+                        shelf(goods_id);
+                        break;
+                    case 'verify':
+                        verify(goods_id);
                         break;
                     case 'del':
                         del(goods_id);
@@ -161,8 +172,8 @@
                 });
             }
 
-            function edit(goods_id) {
-                location.href = `/goods_edit?goods_id=${goods_id}`;
+            function edit(goods_id, status) {
+                location.href = `/goods_edit?goods_id=${goods_id}&status=${status}`;
             }
 
             function del(goods_id) {
@@ -178,6 +189,44 @@
                         layer.msg(message);
                         if (!code) tableInit.reload();
                     });
+                });
+            }
+
+            function unshelf(goods_id){
+                layer.confirm('确定下架该商品吗？', {
+                    btn: ['确定', '取消']
+                }, () => {
+                    updStatus(goods_id, 1);
+                });
+            }
+
+            function shelf(goods_id){
+                layer.confirm('确定上架该商品吗？', {
+                    btn: ['确定', '取消']
+                }, () => {
+                    updStatus(goods_id, 0);
+                });
+            }
+
+            function verify(goods_id) {
+                layer.confirm('是否通过审核？', {
+                    btn: ['通过', '不通过']
+                }, () => {
+                    updStatus(goods_id, 0);
+                }, () => {
+                    updStatus(goods_id, 3);
+                });
+            }
+
+            function updStatus(goods_id, status) {
+                $.ajax({
+                    type: 'post',
+                    url: '/updstatus',
+                    data: { goods_id, status }
+                }).then(res => {
+                    layer.closeAll();
+                    layer.msg(res.message);
+                    if(!res.code) tableInit.reload();
                 });
             }
         });

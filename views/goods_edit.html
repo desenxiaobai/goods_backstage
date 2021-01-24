@@ -88,8 +88,9 @@
         editor.config.uploadImgShowBase64 = true;
         editor.create();
 
-        let reg = /goods_id=(.*)&?/;
-        let [, goods_id] = [...reg.exec(location.href)];
+        let reg = /goods_id=(.*)&status=(.*)&?/;
+        console.log(...reg.exec(location.href));
+        let [, goods_id, status] = [...reg.exec(location.href)];
 
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
         layui.use(['element', 'form', 'layer', 'upload'], function () {
@@ -121,7 +122,7 @@
                 $.ajax({
                     type: 'post',
                     url: '/edit_goods',
-                    data: { ...field, goods_id }
+                    data: { ...field, goods_id, status }
                 }).then(res => {
                     $(elem).removeClass('layui-btn-disabled').html(oldHtml);
                     layer.msg(res.message);
@@ -151,6 +152,7 @@
                     if (res.code) return layer.msg(res.message);
                     let { goods_title, detailspic, price, depict, category } = res;
                     price = price.toFixed(2);
+                    $('input[name="detailspic"]').val(detailspic);
                     $('.preview').attr('src', detailspic);
                     editor.txt.html(depict);
                     // oneCate 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
