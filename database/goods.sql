@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2021-01-25 01:23:34
+Date: 2021-01-25 10:26:33
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -24,16 +24,16 @@ CREATE TABLE `category` (
   `cate_name` varchar(30) COLLATE utf8_bin DEFAULT '' COMMENT '分类名称',
   `add_date` datetime DEFAULT '0000-00-00 00:00:00' COMMENT '分类添加时间',
   PRIMARY KEY (`cate_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Records of category
 -- ----------------------------
-INSERT INTO `category` VALUES ('1', '水果', '2018-02-05 13:44:28');
-INSERT INTO `category` VALUES ('2', '零食', '2018-01-02 13:44:28');
-INSERT INTO `category` VALUES ('3', '服装', '2018-04-04 13:44:28');
-INSERT INTO `category` VALUES ('4', '粮油', '2018-02-21 13:44:28');
-INSERT INTO `category` VALUES ('5', '饮品', '2018-01-19 13:44:28');
+INSERT INTO `category` VALUES ('1', '水果', '2020-02-05 13:44:28');
+INSERT INTO `category` VALUES ('2', '零食', '2020-05-13 13:32:12');
+INSERT INTO `category` VALUES ('3', '服装', '2020-07-19 15:14:54');
+INSERT INTO `category` VALUES ('4', '粮油', '2020-11-25 08:27:18');
+INSERT INTO `category` VALUES ('5', '饮品', '2020-04-09 10:52:49');
 
 -- ----------------------------
 -- Table structure for goods

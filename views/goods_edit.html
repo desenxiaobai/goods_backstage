@@ -36,7 +36,7 @@
                     </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label">预览</label>
-                        <input type="hidden" name="detailspic" value="">
+                        <input type="hidden" name="detailspic" value="" id="detailspic">
                         <img src="" alt="暂无图片" class="preview preview_img">
                     </div>
                     <div class="layui-form-item">
@@ -89,7 +89,6 @@
         editor.create();
 
         let reg = /goods_id=(.*)&status=(.*)&?/;
-        console.log(...reg.exec(location.href));
         let [, goods_id, status] = [...reg.exec(location.href)];
 
         // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
@@ -100,11 +99,16 @@
             upload.render({
                 elem: '#upload_dp' //绑定元素
                 , url: '/upload' //上传接口
+                , data: {
+                    oldFile(){
+                        return $('#detailspic').val();
+                    }
+                }
                 , done: function ({ message, src }) {
                     //上传完毕回调
                     if (!src) return layer.msg(message);
                     $('.preview').attr('src', src);
-                    $('input[name="detailspic"]').val(src);
+                    $('#detailspic').val(src);
                 }
             });
 
@@ -152,7 +156,7 @@
                     if (res.code) return layer.msg(res.message);
                     let { goods_title, detailspic, price, depict, category } = res;
                     price = price.toFixed(2);
-                    $('input[name="detailspic"]').val(detailspic);
+                    $('#detailspic').val(detailspic);
                     $('.preview').attr('src', detailspic);
                     editor.txt.html(depict);
                     // oneCate 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值

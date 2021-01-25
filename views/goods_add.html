@@ -36,7 +36,7 @@
                     </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label">预览</label>
-                        <input type="hidden" name="detailspic" value="" required>
+                        <input type="hidden" name="detailspic" value="" id="detailspic">
                         <img src="" alt="暂无图片" class="preview">
                     </div>
                     <div class="layui-form-item">
@@ -96,20 +96,25 @@
             upload.render({
                 elem: '#upload_dp' //绑定元素
                 , url: '/upload' //上传接口
+                , data: {
+                    oldFile (){
+                        return $('#detailspic').val();
+                    }
+                }
                 , done: function ({ message, src }) {
                     //上传完毕回调
                     if (!src) return layer.msg(message);
                     $('.preview').attr('src', src).addClass('preview_img');
-                    $('input[name="detailspic"]').val(src);
+                    $('#detailspic').val(src);
                 }
             });
 
             form.on('submit(formDemo)', function ({ elem, field }) {
-                if(!field.detailspic) {
+                if (!field.detailspic) {
                     layer.msg('请上传详情图');
                     return false;
                 }
-                if(!editor.txt.html()) {
+                if (!editor.txt.html()) {
                     layer.msg('请输入详情描述');
                     return false;
                 }

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const model = require('../model/model.js');
 const { delsuccess, delfail, paramerr, addsuccess, addfail, editsuccess, editfail, getfail, operatesuccess, operatefail }
     = require('../config/resmsg.json');
@@ -35,7 +36,7 @@ let controller = {
         res.json(delfail);
     },
     async add_goods(req, res) {
-        let { goods_title, detailspic, price, category, status, depict } = req.body;
+        let { goods_title, detailspic, price, category, depict } = req.body;
         let sql = `insert into goods(goods_title,detailspic,price,depict,category,added_time) 
             values('${goods_title}','${detailspic}',${price},'${depict}',${category},now())`;
         let result = await model(sql);
@@ -59,9 +60,11 @@ let controller = {
         if (result.affectedRows) return res.json(editsuccess);
         res.json(editfail);
     },
-    upload({ file }, res) {
-        if (!file) return res.json({ message: '没有上传文件', src: null});
-        let { originalname, destination, filename } = file;
+    upload(req, res) {
+        if (!req.file) return res.json({ message: '没有上传文件', src: null});
+        let oldFile = req.body.oldFile;
+        oldFile && fs.unlinkSync(oldFile);
+        let { originalname, destination, filename } = req.file;
         let ext = originalname.substring(originalname.lastIndexOf('.'));
         let oldPath = `${destination}${filename}`;
         let newPath = `${oldPath}${ext}`;
