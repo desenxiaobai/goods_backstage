@@ -1,7 +1,7 @@
 <div class="layui-header">
     <div class="layui-logo" id="logo">DL&QZL</div>
     <ul class="layui-nav layui-layout-left">
-        <li class="layui-nav-item layui-this"><a href="/console">控制台</a></li>
+        <li class="layui-nav-item layui-this"><a href="/index">控制台</a></li>
         <li class="layui-nav-item"><a href="javascript:;">商品管理</a></li>
         <li class="layui-nav-item"><a href="javascript:;">大数据</a></li>
         <li class="layui-nav-item">
@@ -19,12 +19,32 @@
             <a href="javascript:;">个人中心<span class="layui-badge-dot"></span></a>
         </li>
         <li class="layui-nav-item">
-            <a href="javascript:;"><img src="/public/images/lADPBFDk9U0fxB7NAinNAhw_540_553.jpg" class="layui-nav-img">郑小映</a>
+            <a href="javascript:;" id="user"></a>
             <dl class="layui-nav-child">
                 <dd><a href="javascript:;">修改信息</a></dd>
                 <dd><a href="javascript:;">安全管理</a></dd>
-                <dd><a href="javascript:;">退出</a></dd>
+                <dd><a href="javascript:;" id="logout">退出</a></dd>
             </dl>
         </li>
     </ul>
 </div>
+
+<script src="/public/js/jquery-3.5.1.js"></script>
+<script src="/public/layui/layui.all.js"></script>
+<script>
+    let layer = layui.layer;
+    let userHtml = `<img src="${localStorage.getItem('avatar')}" class="layui-nav-img">
+                    ${localStorage.getItem('username')}`;
+    $('#user').html(userHtml);
+    $('#logout').on('click', function () {
+        layer.confirm('确认退出登录吗？', {
+            btn: ['退出', '取消'] //按钮
+        }, function () {
+            $.get('/logout', res => {
+                localStorage.clear();
+                layer.msg('退出成功');
+                location.href = '/login';
+            });
+        });
+    });
+</script>

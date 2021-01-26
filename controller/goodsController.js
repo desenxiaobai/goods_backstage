@@ -5,7 +5,6 @@ const { delsuccess, delfail, paramerr, addsuccess, addfail, editsuccess, editfai
     = require('../config/resmsg.json');
 
 let controller = {
-    console(req, res) { res.render('console'); },
     goods(req, res) { res.render('goods'); },
     goods_add(req, res) { res.render('goods_add'); },
     goods_edit(req, res) { res.render('goods_edit'); },
@@ -61,23 +60,23 @@ let controller = {
         res.json(editfail);
     },
     upload(req, res) {
-        if (!req.file) return res.json({ message: '没有上传文件', src: null});
+        if (!req.file) return res.json({ message: '没有上传文件', src: null });
         let oldFile = req.body.oldFile;
-        oldFile && fs.unlinkSync(oldFile);
         let { originalname, destination, filename } = req.file;
         let ext = originalname.substring(originalname.lastIndexOf('.'));
         let oldPath = `${destination}${filename}`;
         let newPath = `${oldPath}${ext}`;
         fs.rename(oldPath, newPath, err => {
             if (err) throw err;
+            oldFile && fs.unlinkSync(path.join(__dirname, oldFile));
             res.json({ message: '上传成功', src: newPath });
         });
     },
-    async updstatus(req,res){
-        let {goods_id,status}=req.body;
+    async updstatus(req, res) {
+        let { goods_id, status } = req.body;
         let sql = `update goods set status=${status} where goods_id=${goods_id}`;
         let result = await model(sql);
-        if(result.affectedRows) return res.json(operatesuccess);
+        if (result.affectedRows) return res.json(operatesuccess);
         res.json(operatefail);
     }
 };

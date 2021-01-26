@@ -19,7 +19,7 @@
         <div class="layui-body">
             <!-- 内容主体区域 -->
             <div style="padding: 15px;">
-                <h2>控制台</h2>
+                <div id="goodsChart" style="width: 600px;height:400px;"></div>
             </div>
         </div>
 
@@ -28,12 +28,6 @@
     </div>
 
     {{include "./common/script.html"}}
-    <script>
-        // 导航依赖 element 模块，表单依赖 form 模块，表格依赖 table 模块
-        layui.use('element', function() {
-            // let element = layui.element;
-        });
-    </script>
 </body>
 
 </html>
