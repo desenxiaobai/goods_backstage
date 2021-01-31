@@ -22,9 +22,6 @@
             <div style="padding: 15px;">
                 <h2>
                     <span>所有商品</span>
-                    <a class="layui-btn add-btn" title="添加商品" href="/goods_add">
-                        <i class="layui-icon">&#xe608;</i> 添加
-                    </a>
                 </h2>
                 <table class="layui-hide" id="test" lay-filter="test"></table>
             </div>
@@ -36,6 +33,28 @@
 
     {{include "./common/script.html"}}
     <script src="/public/js/lightbox-plus-jquery.js"></script>
+    <script type="text/html" id="toolbarDemo">
+        <div class="demoTable">
+            <a class="layui-btn add-btn" title="添加商品" href="/goods_add">
+                <i class="layui-icon">&#xe608;</i> 添加
+            </a>
+            标题
+            <div class="layui-inline" style="margin-right: 20px">
+              <input class="layui-input" name="id" id="goods_title" autocomplete="off">
+            </div>
+            状态
+            <div class="layui-input-inline" style="margin-right: 10px">
+                <select name="category" lay-verify="required" id="status">
+                    <option value="">全部</option>
+                    <option value="0">已上架</option>
+                    <option value="1">已下架</option>
+                    <option value="2">待审核</option>
+                    <option value="3">不通过</option>
+                </select>
+            </div>
+            <button class="layui-btn" data-type="reload" id="searchbtn">搜索</button>
+        </div>
+    </script>
     <!-- <script type="text/html" id="barDemo">
         <div class="layui-btn-group">
             <a class="layui-btn layui-btn-xs" lay-event="show">查看内容</a>
@@ -56,6 +75,7 @@
                 title: '商品数据表',
                 limit: 5,
                 limits: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100],
+                id: 'testReload',
                 cols: [
                     [{
                         field: 'goods_title',
@@ -161,6 +181,22 @@
                 }
             });
 
+            $('.layui-body').on('click','#searchbtn', function () {
+                let goods_title = $('#goods_title').val();
+                let status = $('#status').val();
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        goods_title,
+                        status
+                    }
+                }, 'data');
+                $('#goods_title').val(goods_title);
+                $('#status').val(status);
+            });
+
             function show(title, content) {
                 layer.open({
                     type: 1,
@@ -192,7 +228,7 @@
                 });
             }
 
-            function unshelf(goods_id){
+            function unshelf(goods_id) {
                 layer.confirm('确定下架该商品吗？', {
                     btn: ['确定', '取消']
                 }, () => {
@@ -200,7 +236,7 @@
                 });
             }
 
-            function shelf(goods_id){
+            function shelf(goods_id) {
                 layer.confirm('确定上架该商品吗？', {
                     btn: ['确定', '取消']
                 }, () => {
@@ -226,7 +262,7 @@
                 }).then(res => {
                     layer.closeAll();
                     layer.msg(res.message);
-                    if(!res.code) tableInit.reload();
+                    if (!res.code) tableInit.reload();
                 });
             }
         });

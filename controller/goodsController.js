@@ -10,11 +10,14 @@ let controller = {
     goods_edit(req, res) { res.render('goods_edit'); },
 
     async getGoods(req, res) {
-        let { page, limit } = req.query;
+        let { page, limit, goods_title, status } = req.query;
+        let where = `where 1`;
+        goods_title && (where += ` and goods_title like '%${goods_title}%'`);
+        status && (where += ` and status=${status}`);
         let offset = (page - 1) * limit;
         let sql1 = `select t1.*,t2.cate_name from goods t1 left join category t2 on t1.category=t2.cate_id 
-            order by goods_id desc limit ${offset},${limit}`;
-        let sql2 = `select count(*) as count from goods`;
+            ${where} order by goods_id desc limit ${offset},${limit}`;
+        let sql2 = `select count(*) as count from goods ${where}`;
         let promise1 = model(sql1);
         let promise2 = model(sql2);
         let result = await Promise.all([promise1, promise2]);
@@ -68,7 +71,7 @@ let controller = {
         let newPath = `${oldPath}${ext}`;
         fs.rename(oldPath, newPath, err => {
             if (err) throw err;
-            oldFile && fs.unlinkSync(path.join(__dirname, oldFile));
+            // oldFile && fs.unlinkSync(path.join(__dirname, oldFile));
             res.json({ message: '上传成功', src: newPath });
         });
     },

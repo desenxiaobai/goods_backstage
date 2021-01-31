@@ -53,7 +53,7 @@
 }
 
 .add-btn {
-	float: right;
+	margin-right: 40px;
 }
 
 .cate_name_input {
@@ -84,4 +84,44 @@
 
 .layui-anim.layui-anim-upbit {
 	z-index: 99999;
+}
+
+#charts {
+	display: flex;
+}
+
+#charts>div {
+	width: 550px;
+	height: 400px;
+}
+
+#upload {
+	position: relative;
+	margin: 40px auto 20px;
+	width: 80px;
+	height: 80px;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	overflow: hidden;
+}
+
+#upload #avatar {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	height: 100%;
+}
+
+#upload #_upload_dp {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+
+#editpwdform {
+	padding: 30px 20px;
+}
+
+#editpwdform .layui-form-label {
+	width: 100px;
 }

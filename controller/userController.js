@@ -1,5 +1,6 @@
 const model = require("../model/model.js");
-const { serverbusy, loginfail, usernrepeat, registersuccess } = require('../config/resmsg.json');
+const { editsuccess, editfail, serverbusy, loginfail, usernrepeat, registersuccess, editpwdsuccess, editpwdfail } 
+    = require('../config/resmsg.json');
 const md5 = require('md5');
 const { secret } = require('../config/secret.json');
 
@@ -16,6 +17,8 @@ let controller = {
         if (data.length) {
             req.session.userInfo = data[0];
             res.json(data[0]);
+            let sql1 = `update users set lastlogindate=now()`;
+            model(sql1);
             return;
         }
         res.json(loginfail);
@@ -36,6 +39,27 @@ let controller = {
         let result = await model(sql1);
         if (!result.affectedRows) return res.json(serverbusy);
         res.json(registersuccess);
+    },
+    async edit_user(req, res) {
+        let { username, avatar, nickname } = req.body;
+        let sql = `update users set avatar='${avatar}',nickname='${nickname}' where username='${username}'`
+        let result = await model(sql);
+        if (result.affectedRows) return res.json(editsuccess);
+        res.json(editfail);
+    },
+    async edit_user_pwd(req, res) {
+        let { username, password, newpwd } = req.body;
+        password = md5(`${password}${secret}`);
+        let sql = `select * from users where username='${username}' and password='${password}'`
+        let data = await model(sql);
+        if (data.length) {
+            newpwd = md5(`${newpwd}${secret}`);
+            let sql1=`update users set password='${newpwd}' where username='${username}'`;
+            await model(sql1);
+            res.json(editpwdsuccess);
+            return;
+        }
+        res.json(editpwdfail);
     }
 }
 module.exports = controller;

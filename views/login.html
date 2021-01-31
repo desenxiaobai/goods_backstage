@@ -78,6 +78,7 @@
                 if (res.message) return layer.msg(res.message);
                 localStorage.setItem('username', res.username);
                 localStorage.setItem('avatar', res.avatar);
+                localStorage.setItem('nickname', res.nickname);
                 location.href = '/';
             }, 'json');
         });
