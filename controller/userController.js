@@ -56,6 +56,9 @@ let controller = {
             newpwd = md5(`${newpwd}${secret}`);
             let sql1=`update users set password='${newpwd}' where username='${username}'`;
             await model(sql1);
+            req.session.destroy(err => {
+                if (err) throw err;
+            });
             res.json(editpwdsuccess);
             return;
         }
